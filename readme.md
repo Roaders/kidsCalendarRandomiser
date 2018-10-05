@@ -26,4 +26,4 @@ npm start
 
 ## Output
 
-!(./assets/sample.jpg)
+![Shcreenshot of output](/assets/sample.jpg)
