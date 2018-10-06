@@ -10,8 +10,8 @@ export function getRandomItem<T>(items: T[], disallowed?: unknown): T | null {
     let randomIndex = Math.floor(items.length * Math.random());
 
     while(items[randomIndex] === disallowed){
-        const indexes = items.map((_, index) => index)
-            .filter(index => index != randomIndex);
+        let indexes = items.map((_, index) => index)
+        indexes.splice(randomIndex, 1);
         
         randomIndex = getRandomItem(indexes);
     }
