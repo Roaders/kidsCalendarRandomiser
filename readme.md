@@ -34,7 +34,7 @@ OK, I said I wasn't going to optimise but I like playing with code so lets see h
 
 
 | No Optimisation | Column Backgrounds | Random Selection | Row Backgrounds |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- |
 | 20847 in 4s (0.23ms) | 46300 in 9s (22ms) | 191 in <1s (20ms) | 3 in <1s (33ms) |
 | 18973 in 3s (0.23ms) | 14656 in 31s (21ms) | 1455 in <1s (18ms) | 11 in <1s (27ms) |
 | 55621 in 12s (0.22ms) | 189143 in 39s (21ms) | 2082 in <1s (18ms) | 1 in <1s (1ms) |
