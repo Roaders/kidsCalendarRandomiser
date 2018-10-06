@@ -27,3 +27,16 @@ npm start
 ## Output
 
 ![Shcreenshot of output](/assets/sample.jpg)
+
+## Optimisation
+
+OK, I said I wasn't going to optimise but I like playing with code so lets see how much we can improve this with some minor tweaks to the algorithm...
+
+
+| No Optimisation |
+| --- |
+| 20847 in 4s (0.23ms) |
+| 18973 in 3s (0.23ms) |
+| 55621 in 12s (0.22ms) |
+| 3086 in <1s (0.24ms) |
+| 983 in < 1s (0.25ms) |

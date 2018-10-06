@@ -11,6 +11,7 @@ import {
 import { displayGrid } from "./lib/display";
 import { unusedBackgrounds, unusedFills, unusedThreads, recycleRow, recycleCell } from "./lib/data";
 import { getRandomItem } from "./lib/util";
+import formatDuration from "format-duration";
 
 function generateGrid(): Grid | null {
 
@@ -142,14 +143,21 @@ function generateCell(): Cell | null {
     return cell;
 }
 
-let grid = generateGrid();
+let startTime = Date.now();
 
 let gridCount = 1;
+let grid = generateGrid();
+
 
 while (grid == null) {
     console.log(`Attempt: ${gridCount}`)
     grid = generateGrid();
     gridCount++;
 }
+
+const elapsedTime = Date.now() - startTime;
+const elapsedPerGrid = elapsedTime / gridCount;
+
+console.log(`${gridCount} grids attempted in ${formatDuration(elapsedTime)} (${elapsedPerGrid.toFixed(2)}ms each)`);
 
 displayGrid(grid);
