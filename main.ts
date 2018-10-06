@@ -103,7 +103,7 @@ function generateCell(disallowedBackgrounds?: Background[]): Cell | null {
         return null;
     }
 
-    let thread = getRandomItem<Thread>(unusedThreads, background);
+    let thread = getRandomItem<Thread>(unusedThreads, [background, fill]);
 
     if(thread == null){
         unusedBackgrounds.push(background);
