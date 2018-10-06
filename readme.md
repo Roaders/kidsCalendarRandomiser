@@ -33,10 +33,10 @@ npm start
 OK, I said I wasn't going to optimise but I like playing with code so lets see how much we can improve this with some minor tweaks to the algorithm...
 
 
-| No Optimisation |
-| --- |
-| 20847 in 4s (0.23ms) |
-| 18973 in 3s (0.23ms) |
-| 55621 in 12s (0.22ms) |
-| 3086 in <1s (0.24ms) |
-| 983 in < 1s (0.25ms) |
+| No Optimisation | Disallowed Backgrounds |
+| --- | --- |
+| 20847 in 4s (0.23ms) | 46300 in 9s (22ms) |
+| 18973 in 3s (0.23ms) | 14656 in 31s (21ms) |
+| 55621 in 12s (0.22ms) | 189143 in 39s (21ms) |
+| 3086 in <1s (0.24ms) | 109610 in 23s (21ms) |
+| 983 in < 1s (0.25ms) | 280398 in 59s (21ms) |

@@ -24,7 +24,7 @@ function generateGrid(): Grid | null {
     let previousRow: Row | undefined;
 
     while (rows.length < 6) {
-        const row = generateRow();
+        const row = generateRow(previousRow);
 
         if (!row) {
             console.log(`Recycling Grid null row`);
@@ -50,12 +50,11 @@ function generateGrid(): Grid | null {
     return rows as Grid;
 }
 
-function generateRow(): Row | null {
+function generateRow(previousRow?: Row): Row | null {
     const cells: Cell[] = [];
 
     while (cells.length < 4) {
-        const cell = generateCell();
-
+        const cell = generateCell(previousRow ? previousRow[cells.length].background : null);
 
         if (cell == null) {
             console.log(`rejecting row (null cell)`);
@@ -94,13 +93,22 @@ function updateComboCount(cell: Cell, count: number){
     comboLookup[`${cell.background}_${cell.fill}`] = count;
 }
 
-function generateCell(): Cell | null {
+function generateCell(disallowedBackground: Background | null): Cell | null {
 
     if ([unusedBackgrounds, unusedFills, unusedThreads].some(colors => colors.length === 0)) {
         throw new Error('No colors left');
     }
 
-    const background = getRandomItem(unusedBackgrounds);
+    if(disallowedBackground && unusedBackgrounds.every(background => background === disallowedBackground)){
+        return null;
+    }
+
+    let background = getRandomItem(unusedBackgrounds);
+
+    while(background === disallowedBackground){
+        background = getRandomItem(unusedBackgrounds);
+        unusedBackgrounds.push(background);
+    }
 
     if (!unusedFills.some(f => f !== background) || !unusedThreads.some(t => t !== background)) {
         console.log(`No matching colors (F:${unusedThreads.join(",")}, T:${unusedFills.join(",")}) for background (${background})`);
