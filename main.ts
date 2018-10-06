@@ -54,18 +54,15 @@ function generateRow(previousRow?: Row): Row | null {
     const cells: Cell[] = [];
 
     while (cells.length < 4) {
-        const cell = generateCell(previousRow ? previousRow[cells.length].background : undefined);
+        const blacklistBackgrounds = cells.map(cell => cell.background);
+        if(previousRow){
+            blacklistBackgrounds.push(previousRow[cells.length].background);
+        }
+
+        const cell = generateCell(blacklistBackgrounds);
 
         if (cell == null) {
             console.log(`rejecting row (null cell)`);
-            recycleRow(cells);
-
-            return null;
-        }
-
-        if (cells.some(c => c.background === cell.background)) {
-            console.log(`rejecting row (duplicate backgrounds)`);
-            recycleCell(cell);
             recycleRow(cells);
 
             return null;
@@ -89,15 +86,12 @@ function updateComboCount(cell: Cell, count: number){
     comboLookup[`${cell.background}_${cell.fill}`] = count;
 }
 
-function generateCell(disallowedBackground?: Background): Cell | null {
+function generateCell(disallowedBackgrounds?: Background[]): Cell | null {
 
-    if ([unusedBackgrounds, unusedFills, unusedThreads].some(colors => colors.length === 0)) {
-        throw new Error('No colors left');
-    }
-
-    let background = getRandomItem(unusedBackgrounds, disallowedBackground);
+    let background = getRandomItem(unusedBackgrounds, disallowedBackgrounds);
 
     if(background == null){
+        console.log(`Could not find background (disallowed: ${disallowedBackgrounds})`);
         return null;
     }
 
@@ -105,7 +99,7 @@ function generateCell(disallowedBackground?: Background): Cell | null {
 
     if(fill == null){
         unusedBackgrounds.push(background);
-        console.log(`Could not find fill for background`);
+        console.log(`Could not find fill for background '${background}' (available: ${unusedFills})`);
         return null;
     }
 
@@ -114,7 +108,7 @@ function generateCell(disallowedBackground?: Background): Cell | null {
     if(thread == null){
         unusedBackgrounds.push(background);
         unusedFills.push(fill);
-        console.log(`Could not find thread for background`);
+        console.log(`Could not find thread for background '${background}' (available: ${unusedThreads})`);
         return null;
     }
 
