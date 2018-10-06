@@ -54,7 +54,7 @@ function generateRow(previousRow?: Row): Row | null {
     const cells: Cell[] = [];
 
     while (cells.length < 4) {
-        const cell = generateCell(previousRow ? previousRow[cells.length].background : null);
+        const cell = generateCell(previousRow ? previousRow[cells.length].background : undefined);
 
         if (cell == null) {
             console.log(`rejecting row (null cell)`);
@@ -79,10 +79,6 @@ function generateRow(previousRow?: Row): Row | null {
     return cells as Row;
 }
 
-function validateCellColor(color: Fill | Thread, background: Background): boolean {
-    return color != background;
-}
-
 let comboLookup: {[key: string]: number} = {};
 
 function lookupComboCount(cell: Cell){
@@ -93,45 +89,33 @@ function updateComboCount(cell: Cell, count: number){
     comboLookup[`${cell.background}_${cell.fill}`] = count;
 }
 
-function generateCell(disallowedBackground: Background | null): Cell | null {
+function generateCell(disallowedBackground?: Background): Cell | null {
 
     if ([unusedBackgrounds, unusedFills, unusedThreads].some(colors => colors.length === 0)) {
         throw new Error('No colors left');
     }
 
-    if(disallowedBackground && unusedBackgrounds.every(background => background === disallowedBackground)){
+    let background = getRandomItem(unusedBackgrounds, disallowedBackground);
+
+    if(background == null){
         return null;
     }
 
-    let background = getRandomItem(unusedBackgrounds);
+    let fill = getRandomItem<Fill>(unusedFills, background);
 
-    while(background === disallowedBackground){
-        background = getRandomItem(unusedBackgrounds);
+    if(fill == null){
         unusedBackgrounds.push(background);
-    }
-
-    if (!unusedFills.some(f => f !== background) || !unusedThreads.some(t => t !== background)) {
-        console.log(`No matching colors (F:${unusedThreads.join(",")}, T:${unusedFills.join(",")}) for background (${background})`);
-        unusedBackgrounds.push(background);
+        console.log(`Could not find fill for background`);
         return null;
     }
 
-    let fill = getRandomItem(unusedFills);
+    let thread = getRandomItem<Thread>(unusedThreads, background);
 
-    while (!validateCellColor(fill, background)) {
-        console.log(`Reject fill ${fill} on ${background}`);
-
+    if(thread == null){
+        unusedBackgrounds.push(background);
         unusedFills.push(fill);
-        fill = getRandomItem(unusedFills);
-    }
-
-    let thread = getRandomItem(unusedThreads);
-
-    while (!validateCellColor(thread, background)) {
-        console.log(`Reject thread ${thread} on ${background}`);
-
-        unusedThreads.push(thread);
-        thread = getRandomItem(unusedThreads);
+        console.log(`Could not find thread for background`);
+        return null;
     }
 
     const cell: Cell = {
