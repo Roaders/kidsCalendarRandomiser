@@ -31,7 +31,6 @@ unusedFills = randomise(unusedFills);
 unusedThreads = randomise(unusedThreads);
 
 export function recycleRow(row: Cell[]) {
-    //console.log(`recyling row`);
     row.forEach(recycleCell);
 }
 
@@ -39,6 +38,18 @@ export function recycleCell(cell: Cell) {
     unusedBackgrounds.push(cell.background);
     unusedFills.push(cell.fill);
     unusedThreads.push(cell.thread);
+}
 
-    //console.log(`recyling cell B:${unusedBackgrounds.length} F:${unusedFills.length} T:${unusedThreads.length}`);
+let comboLookup: {[key: string]: number} = {};
+
+export function lookupComboCount(cell: Cell){
+    return comboLookup[`${cell.background}_${cell.fill}`] | 0;
+}
+
+export function updateComboCount(cell: Cell, count: number){
+    comboLookup[`${cell.background}_${cell.fill}`] = count;
+}
+
+export function resetComboCount(){
+    comboLookup = {};
 }
