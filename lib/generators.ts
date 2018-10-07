@@ -14,7 +14,7 @@ import {
     resetComboCount, 
     generateMaterials
 } from "./materials";
-import { getRandomItem } from "./util";
+import { removeRandomItem } from "./util";
 
 const materials = generateMaterials();
 
@@ -79,14 +79,14 @@ function generateRow(previousRow?: Row): Row | null {
 
 function generateCell(disallowedBackgrounds?: Background[]): Cell | null {
 
-    let background = getRandomItem(backgrounds, disallowedBackgrounds);
+    let background = removeRandomItem(backgrounds, disallowedBackgrounds);
 
     if(background == null){
         //console.log(`Could not find background (disallowed: ${disallowedBackgrounds})`);
         return null;
     }
 
-    let fill = getRandomItem<Fill>(fills, background);
+    let fill = removeRandomItem<Fill>(fills, background);
 
     if(fill == null){
         backgrounds.push(background);
@@ -94,7 +94,7 @@ function generateCell(disallowedBackgrounds?: Background[]): Cell | null {
         return null;
     }
 
-    let thread = getRandomItem<Thread>(threads, [background, fill]);
+    let thread = removeRandomItem<Thread>(threads, [background, fill]);
 
     if(thread == null){
         backgrounds.push(background);

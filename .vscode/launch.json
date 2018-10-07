@@ -7,8 +7,17 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "Launch Ranomiser",
             "program": "${workspaceFolder}\\main.js",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Breeding",
+            "program": "${workspaceFolder}\\genetics.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]

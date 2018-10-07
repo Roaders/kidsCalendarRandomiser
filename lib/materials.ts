@@ -1,9 +1,9 @@
 import { Background, Fill, Thread, Cell } from "./types";
-import { getRandomItem } from "./util";
+import { removeRandomItem, flatten } from "./util";
 
-const allBackgrounds: Background[] = ["Red", "Green", "Blue", "Purple", "Yellow", "Pink"];
-const allFills: Fill[] = ["Yellow", "Pink", "Red", "Green"];
-const allThreads: Thread[] = ["Yellow", "Blue", "Red", "Green"];
+export const allBackgrounds: Background[] = ["Red", "Green", "Blue", "Purple", "Yellow", "Pink"];
+export const allFills: Fill[] = ["Yellow", "Pink", "Red", "Green"];
+export const allThreads: Thread[] = ["Yellow", "Blue", "Red", "Green"];
 
 export type Materials = {
     backgrounds: Background[];
@@ -15,17 +15,12 @@ function randomise<T>(input: T[]) {
     const output: T[] = [];
 
     while (input.length > 0) {
-        const inputItem = getRandomItem(input);
+        const inputItem = removeRandomItem(input);
         const outputIndex = Math.floor(Math.random() * output.length);
         output.splice(outputIndex, 0, inputItem);
     }
 
     return output;
-}
-
-function flatten<T>(all: T[], current: T[]): T[]{
-    all.push(...current);
-    return all;
 }
 
 export function generateMaterials(): Materials {
