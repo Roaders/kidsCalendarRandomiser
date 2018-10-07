@@ -6,17 +6,23 @@ import {
     Fill, 
     Row
 } from "./types";
-import { 
-    unusedBackgrounds, 
-    unusedFills, 
-    unusedThreads, 
+import {
     recycleRow, 
     recycleCell, 
     lookupComboCount, 
     updateComboCount, 
-    resetComboCount 
-} from "./data";
+    resetComboCount, 
+    generateMaterials
+} from "./materials";
 import { getRandomItem } from "./util";
+
+const materials = generateMaterials();
+
+const {
+    backgrounds, 
+    fills, 
+    threads
+} = materials;
 
 export function generateGrid(): Grid | null {
 
@@ -31,7 +37,7 @@ export function generateGrid(): Grid | null {
 
         if (!row) {
             //console.log(`Recycling Grid null row`);
-            rows.forEach(recycleRow);
+            rows.forEach(row => recycleRow(row, materials));
             return null
         }
 
@@ -45,7 +51,7 @@ export function generateGrid(): Grid | null {
     return rows as Grid;
 }
 
-export function generateRow(previousRow?: Row): Row | null {
+function generateRow(previousRow?: Row): Row | null {
     const cells: Cell[] = [];
 
     while (cells.length < 4) {
@@ -58,7 +64,7 @@ export function generateRow(previousRow?: Row): Row | null {
 
         if (cell == null) {
             //console.log(`rejecting row (null cell)`);
-            recycleRow(cells);
+            recycleRow(cells, materials);
 
             return null;
         }
@@ -71,29 +77,28 @@ export function generateRow(previousRow?: Row): Row | null {
     return cells as Row;
 }
 
+function generateCell(disallowedBackgrounds?: Background[]): Cell | null {
 
-export function generateCell(disallowedBackgrounds?: Background[]): Cell | null {
-
-    let background = getRandomItem(unusedBackgrounds, disallowedBackgrounds);
+    let background = getRandomItem(backgrounds, disallowedBackgrounds);
 
     if(background == null){
         //console.log(`Could not find background (disallowed: ${disallowedBackgrounds})`);
         return null;
     }
 
-    let fill = getRandomItem<Fill>(unusedFills, background);
+    let fill = getRandomItem<Fill>(fills, background);
 
     if(fill == null){
-        unusedBackgrounds.push(background);
+        backgrounds.push(background);
         //console.log(`Could not find fill for background '${background}' (available: ${unusedFills})`);
         return null;
     }
 
-    let thread = getRandomItem<Thread>(unusedThreads, [background, fill]);
+    let thread = getRandomItem<Thread>(threads, [background, fill]);
 
     if(thread == null){
-        unusedBackgrounds.push(background);
-        unusedFills.push(fill);
+        backgrounds.push(background);
+        fills.push(fill);
         //console.log(`Could not find thread for background '${background}' (available: ${unusedThreads})`);
         return null;
     }
@@ -106,7 +111,7 @@ export function generateCell(disallowedBackgrounds?: Background[]): Cell | null 
 
     if(lookupComboCount(cell) >= 2){
         //console.log(`Reject cell, too many combos`);
-        recycleCell(cell);
+        recycleCell(cell, materials);
         return null;
     }
 
