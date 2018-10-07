@@ -1,4 +1,3 @@
-import "colors";
 
 import { Grid } from "./lib/types";
 import { displayGrid } from "./lib/display";

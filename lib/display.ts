@@ -1,5 +1,5 @@
 import { Grid, Cell, Row, Background, Thread, Fill } from "./types";
-
+import "colors";
 
 export function displayGrid(grid: Grid){
     const maxLength = grid.reduce<Cell[]>((cells, row) => { cells.push(...row); return cells; }, [])
