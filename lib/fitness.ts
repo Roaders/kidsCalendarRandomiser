@@ -1,15 +1,20 @@
 import { Grid, Row, Column, Cell, getGridColumns } from "./types";
 import { allBackgrounds } from "./materials";
-import { stringifyGrid, count } from "./util";
+import { stringifyGrid, count, stringifyCell, sumScore, isDefined } from "./util";
 
 var fitnessCache: { [key: string]: number } = {};
+
+type ColorComboCount = {
+    cell: Cell,
+    count: number
+};
 
 export function fitness(grid: Grid) {
     const gridString = stringifyGrid(grid);
     let fitness = fitnessCache[gridString];
 
     if (fitness == null) {
-        fitness = calculateFitness(grid);
+        fitness = calculateGridFitness(grid);
 
         fitnessCache[gridString] = fitness;
     }
@@ -17,29 +22,106 @@ export function fitness(grid: Grid) {
     return fitness;
 }
 
-function calculateFitness(grid: Grid){
-    const rowScore = grid.map(rowFitness)
-        .reduce(sumScore, 0);
+function calculateGridFitness(grid: Grid) {
 
-    const columnScore = getGridColumns(grid)
+    return [
+        rowsFitness,
+        columnsFitness,
+        scoreCellComboReuse
+    ]
+        .map(func => func(grid))
+        .reduce(sumScore, 0);
+}
+
+function scoreCellComboReuse(grid: Grid) {
+
+    const comboLookup: { [key: string]: ColorComboCount } = {};
+    const comboList: ColorComboCount[] = [];
+
+    function addCell(cell: Cell) {
+        const cellString = stringifyCell(cell);
+
+        let comboCount: ColorComboCount = comboLookup[cellString];
+
+        if (comboCount == null) {
+            comboCount = {
+                cell,
+                count: 0
+            }
+            comboLookup[cellString] = comboCount;
+            comboList.push(comboCount);
+        }
+
+        comboCount.count++;
+    }
+
+    grid.forEach(row => row.forEach(addCell));
+
+    return -comboList.filter(combo => combo.count > 1)
+        .map(combo => combo.count)
+        .reduce(sumScore, 0)
+
+}
+
+function rowsFitness(grid: Grid) {
+    return grid.map(rowFitness)
+        .reduce(sumScore, 0);
+}
+
+function columnsFitness(grid: Grid) {
+    return getGridColumns(grid)
         .map(columnFitness)
         .reduce(sumScore, 0);
-
-    return rowScore + columnScore;
 }
 
 function columnFitness(column: Column) {
-    return [scoreAdjacentBackgroundsInColumn]
+    return [
+        scoreAdjacentBackgroundsInColumn,
+        scoreSequentialColorsDifferent,
+        scoreUniqueBackgrounds
+    ]
         .map(func => func(column))
+        .reduce(sumScore, 0);
+}
+
+function scoreUniqueBackgrounds(cells: Cell[]){
+    return cells.map(cell => count(cells, countCell => countCell.background === cell.background))
+        .filter(count => count === 1)
         .reduce(sumScore, 0);
 }
 
 function rowFitness(row: Row) {
     return [
         scoreDuplicateColorsOnRow,
-        scoreCellsInRow
+        scoreCellsInRow,
+        scoreSequentialColorsDifferent
     ]
         .map(func => func(row))
+        .reduce(sumScore, 0);
+}
+
+function scoreSequentialColorsDifferent(cells: Cell[]) {
+    return cells.reduce(scoreAdjacentCellsHaveDifferentColors, 0);
+}
+
+
+function scoreAdjacentCellsHaveDifferentColors(
+    currentScore: number,
+    cell: Cell,
+    index: number,
+    cells: Cell[]) {
+
+    const previousCell = index > 0 ? cells[index - 1] : null;
+
+    if (!previousCell) {
+        return currentScore
+    }
+
+    return [
+        cell.thread != previousCell.thread, 
+        cell.fill != previousCell.fill
+    ]
+        .map(value => value ? 6 : 0)
         .reduce(sumScore, 0);
 }
 
@@ -49,8 +131,17 @@ function scoreCellsInRow(row: Row) {
 }
 
 function scoreCell(cell: Cell) {
-    return [scoreCellBackgroundMatchesFill]
+    return [
+        scoreCellBackgroundMatchesFill,
+        scoreThreadColorDoesNotMatch
+    ]
         .map(func => func(cell))
+        .reduce(sumScore, 0);
+}
+
+function scoreThreadColorDoesNotMatch(cell: Cell): number {
+    return [cell.thread != cell.background, cell.thread != cell.fill]
+        .map(value => value ? 1 : 0)
         .reduce(sumScore, 0);
 }
 
@@ -65,15 +156,11 @@ function scoreDuplicateColorsOnRow(row: Row) {
         .reduce(sumScore, 0);
 }
 
-function scoreAdjacentBackgroundsInColumn(column: Column){
+function scoreAdjacentBackgroundsInColumn(column: Column) {
     return column.map((cell, index, cells) => {
-        const previousCell = cells[index-1];
+        const previousCell = cells[index - 1];
 
         return previousCell && previousCell.background === cell.background ? -1000 : 0;
     })
-    .reduce(sumScore, 0);
-}
-
-function sumScore(score: number, currentScore: number): number {
-    return score + currentScore;
+        .reduce(sumScore, 0);
 }

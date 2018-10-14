@@ -48,9 +48,16 @@ export function flatten<T>(all: T[], current: T[]): T[]{
     return all;
 }
 
+export function getMax<T>(currentMax: number, current: number): number{
+    return Math.max(currentMax, current);
+}
 
 export function count<T>(items: T[], predicate: (item: T) => boolean){
     return items.reduce((count, item) => predicate(item) ? ++count : count,0);
+}
+
+export function sumScore(score: number, currentScore: number): number {
+    return score + currentScore;
 }
 
 export function stringifyGrid(grid: Grid): string{
@@ -63,4 +70,30 @@ export function stringifyRow(row: Row): string{
 
 export function stringifyCell(cell: Cell): string{
     return `{B:${cell.background},F:${cell.fill},T:${cell.thread}}`;
+}
+
+export function createNullArray(length: number){
+    return Array.from<null>(Array(length));
+}
+
+export function isDefined<T>(input: T | null | undefined): input is T{
+    return input != null;
+}
+
+function consecutiveMatchingNumbers<T>(matches: T[], currentValue: T, comparison: T): T[]{
+    if(currentValue === comparison){
+        matches.push(currentValue);
+    } else {
+        matches = [];
+    }
+    return matches;
+
+}
+
+export function highScoreNoLongerChanging(highScores: number[], generationCount: number): boolean{
+    const highScore = highScores.reduce(getMax, 0);
+
+    const lastHighScores = highScores.reduce<number[]>((scores, score) => consecutiveMatchingNumbers(scores, score, highScore), []);
+
+    return lastHighScores.length >= generationCount;
 }

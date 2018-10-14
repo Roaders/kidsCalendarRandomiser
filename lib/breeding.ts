@@ -7,21 +7,30 @@ import {
 import { removeRandomItem, getRandomItem } from "./util";
 import { generateMaterials, Materials } from "./materials";
 
-export function mutate(grid: Grid){
+const cellProperties: (keyof Cell)[] = ["background", "fill", "thread"];
+
+export function mutate(grid: Grid): Grid{
     grid = cloneGrid(grid);
 
-    const rowOne = getRandomItem(grid);
-    const rowTwo = getRandomItem(grid);
-    const cellOne = getRandomItem(rowOne);
-    const cellTwo = getRandomItem(rowTwo);
-
-    const cloneOne: Cell = cloneCell(cellOne);
-    const cloneTwo: Cell = cloneCell(cellTwo);
-
-    cellOne.background = cloneTwo.background;
-    cellTwo.background = cloneOne.background;
+    cellProperties.forEach(prop => mutateRandomCellProperty(grid, prop));
 
     return grid;
+}
+
+function mutateRandomCellProperty(grid: Grid, prop: keyof Cell){
+    const cellOne = getRandomCell(grid);
+    const cellTwo = getRandomCell(grid);
+
+    const valueOne = cellOne[prop];
+    const valueTwo = cellTwo[prop];
+
+    cellOne[prop] = valueTwo;
+    cellTwo[prop] = valueOne;
+}
+
+function getRandomCell(grid: Grid): Cell{
+    const row = getRandomItem(grid);
+    return getRandomItem(row);
 }
 
 export function generateInitialGrid(): Grid {
